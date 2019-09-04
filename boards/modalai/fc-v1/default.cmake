@@ -55,6 +55,7 @@ px4_add_board(
 		uavcan
 
 	MODULES
+		airspeed_selector
 		attitude_estimator_q
 		camera_feedback
 		commander
@@ -71,14 +72,13 @@ px4_add_board(
 		mavlink
 		mc_att_control
 		mc_pos_control
+		mc_rate_control
 		navigator
 		rover_pos_control
 		sensors
 		sih
 		vmount
 		vtol_att_control
-		airspeed_selector
-
 	SYSTEMCMDS
 		bl_update
 		config
