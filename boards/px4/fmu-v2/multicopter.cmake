@@ -79,8 +79,8 @@ px4_add_board(
 		top
 		#topic_listener
 		tune_control
-		usb_connected
+		#usb_connected
 		ver
-		work_queue
+		#work_queue
 
 	)
