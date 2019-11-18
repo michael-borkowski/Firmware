@@ -38,16 +38,19 @@
 # IDL for the topic messages. The PX4 msg definitions are used to create the IDL
 # used by fastrtpsgen using templates.
 
-import sys
-import os
 import argparse
+import errno
+import glob
+import os
+import sys
 import shutil
+import subprocess
+
 import px_generate_uorb_topic_files
 import px_generate_uorb_topic_helper
 from uorb_rtps_classifier import Classifier
-import subprocess
-import glob
-import errno
+
+
 try:
     import yaml
 except ImportError:
@@ -318,7 +321,7 @@ urtps_templates_dir = (args.urtps_templates if os.path.isabs(args.urtps_template
 yaml_file = os.path.abspath(args.yaml_file) if os.path.isabs(
     args.yaml_file) else os.path.join(msg_dir, args.yaml_file)
 # parse yaml file into a list of deprecated msgs
-deprecated_msg_file = os.path.abspath(deprecated_file) if os.path.isabs(
+deprecated_msg_file = os.path.abspath(args.deprecated_file) if os.path.isabs(
     args.deprecated_file) else os.path.join(msg_dir, args.deprecated_file)
 
 classifier = Classifier(yaml_file, msg_dir, deprecated_msg_file)

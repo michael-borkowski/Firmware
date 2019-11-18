@@ -4,9 +4,12 @@ Script to parse uORB message format to ROS msg format
 Adapted from https://github.com/eProsima/px4_to_ros/blob/master/px4_to_ros2_PoC/px4_msgs/scripts/copy_and_rename.py
 """
 
+import errno
+import argparse
 import os
 import sys
 from shutil import copyfile
+import yaml
 
 __author__ = 'PX4 Development Team'
 __copyright__ = \
@@ -49,65 +52,114 @@ __maintainer__ = 'Nuno Marques'
 __email__ = 'nuno.marques@dronesolution.io'
 __status__ = 'Development'
 
-input_dir = sys.argv[1]
-output_dir = sys.argv[2]
 
-if not os.path.exists(os.path.abspath(output_dir)):
-    os.mkdir(os.path.abspath(output_dir))
-else:
-    ros_msg_dir = os.path.abspath(output_dir)
-    msg_files = os.listdir(ros_msg_dir)
-    for msg in msg_files:
-        if msg.endswith(".msg"):
-            os.remove(os.path.join(ros_msg_dir, msg))
+def load_yaml_file(file):
+    """
+    Open yaml file and parse the data into a list of dict
 
-msg_list = list()
+    :param file: the yaml file to load
+    :returns: the list of dictionaries that represent the message and respective RTPS IDs
+    :raises IOError: raises and error when the file is not found
+    """
+    try:
+        with open(file, 'r') as f:
+            return yaml.safe_load(f)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            raise IOError(errno.ENOENT, os.strerror(
+                errno.ENOENT), file)
+        else:
+            raise
 
-for filename in os.listdir(input_dir):
-    if '.msg' in filename:
-        msg_list.append(filename.rstrip('.msg'))
-        input_file = input_dir + filename
 
-        output_file = output_dir + \
-            filename.partition(".")[0].title().replace('_', '') + ".msg"
-        copyfile(input_file, output_file)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Parse uORB message format to ROS msg format')
+    optional = parser._action_groups.pop()
+    optional.add_argument("-d", "--deprecated-msgs-file", dest='deprecated_file', type=str,
+                          help="Directory and file with the deprecated uORB msgs are set, by default use relative path to msg, 'tools/deprecated_uorb_topics.yaml'", metavar="DEPRECATED_FILE_DIR",
+                          default='tools/deprecated_uorb_topics.yaml')
+    required = parser.add_argument_group('Required')
+    required.add_argument("-i", "--topic-msg-dir", dest='indir', type=str,
+                          help="uORB messages dir", metavar="UORB_MSG_DIR")
+    required.add_argument("-o", "--ros-msg-dir", dest='outdir', type=str,
+                          help="Output ROS messages dir", metavar="ROS_MSG_DIR")
 
-for filename in os.listdir(output_dir):
-    if '.msg' in filename:
-        input_file = output_dir + filename
+    # Parse arguments
+    args = parser.parse_args()
+    input_dir = os.path.abspath(args.indir)
+    output_dir = os.path.abspath(args.outdir)
+    deprecated_msg_file = os.path.abspath(args.deprecated_file) if os.path.isabs(
+        args.deprecated_file) else os.path.join(input_dir, args.deprecated_file)
 
-        fileUpdated = False
+    # creates the list of deprecated uORB msgs
+    deprecated_list = []
+    for msg in load_yaml_file(deprecated_msg_file):
+        deprecated_list.append(msg['name'])
 
-        with open(input_file, 'r') as f:
-            lines = f.readlines()
-            newlines = []
-            alias_msgs = []
-            alias_msg_files = []
+    if not os.path.exists(os.path.abspath(output_dir)):
+        os.mkdir(os.path.abspath(output_dir))
+    else:
+        ros_msg_dir = os.path.abspath(output_dir)
+        msg_files = os.listdir(ros_msg_dir)
+        for msg in msg_files:
+            if msg.endswith(".msg"):
+                os.remove(os.path.join(ros_msg_dir, msg))
 
-            for line in lines:
-                for msg_type in msg_list:
-                    if ('px4/' + msg_type + ' ') in line:
-                        fileUpdated = True
-                        line = line.replace(('px4/' + msg_type),
-                                            msg_type.partition(".")[0].title().replace('_', ''))
-                    if ('' + msg_type + '[') in line.partition('#')[0] or ('' + msg_type + ' ') in line.partition('#')[0]:
-                        fileUpdated = True
-                        line = line.replace(msg_type,
-                                            msg_type.partition(".")[0].title().replace('_', ''))
-                    if '# TOPICS' in line:
-                        fileUpdated = True
-                        alias_msgs += line.split()
-                        alias_msgs.remove('#')
-                        alias_msgs.remove('TOPICS')
-                        line = line.replace(line, '')
-                newlines.append(line)
+    msg_list = list()
 
-        for msg_file in alias_msgs:
-            with open(output_dir + msg_file.partition(".")[0].title().replace('_', '') + ".msg", 'w+') as f:
-                for line in newlines:
-                    f.write(line)
+    # copies the uORB msgs to the ROS msg dir, applying the CamelCase style to the naming
+    for filename in os.listdir(input_dir):
+        # only lists the messages that are not deprecated
+        if '.msg' in filename:
+            for deprecated in deprecated_list:
+                if (deprecated not in filename):
+                    msg_list.append(filename.rstrip('.msg'))
+                    input_file = os.path.join(input_dir, filename)
 
-        if fileUpdated:
-            with open(input_file, 'w+') as f:
-                for line in newlines:
-                    f.write(line)
+                    output_file = os.path.join(output_dir,
+                                               filename.partition(".")[0].title().replace(
+                                                   '_', '') + ".msg")
+                    copyfile(input_file, output_file)
+
+    # removes unnecessary content from the msgs and creates new messages from #TOPICS on
+    # the messages that have them
+    for filename in os.listdir(output_dir):
+        if '.msg' in filename:
+            input_file = os.path.join(output_dir, filename)
+
+            fileUpdated = False
+
+            with open(input_file, 'r') as f:
+                lines = f.readlines()
+                newlines = []
+                alias_msgs = []
+                alias_msg_files = []
+
+                for line in lines:
+                    for msg_type in msg_list:
+                        if ('px4/' + msg_type + ' ') in line:
+                            fileUpdated = True
+                            line = line.replace(('px4/' + msg_type),
+                                                msg_type.partition(".")[0].title().replace('_', ''))
+                        if ('' + msg_type + '[') in line.partition('#')[0] or ('' + msg_type + ' ') in line.partition('#')[0]:
+                            fileUpdated = True
+                            line = line.replace(msg_type,
+                                                msg_type.partition(".")[0].title().replace('_', ''))
+                        if '# TOPICS' in line:
+                            fileUpdated = True
+                            alias_msgs += line.split()
+                            alias_msgs.remove('#')
+                            alias_msgs.remove('TOPICS')
+                            line = line.replace(line, '')
+                    newlines.append(line)
+
+            for msg_file in alias_msgs:
+                with open(os.path.join(output_dir, msg_file.partition(".")[0].title().replace('_', '') + ".msg"), 'w+') as f:
+                    for line in newlines:
+                        f.write(line)
+
+            if fileUpdated:
+                with open(input_file, 'w+') as f:
+                    for line in newlines:
+                        f.write(line)

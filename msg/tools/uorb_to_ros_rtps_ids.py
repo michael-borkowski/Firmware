@@ -3,6 +3,7 @@
 Script to read an yaml file containing the RTPS message IDs and update the naming convention to PascalCase
 """
 
+import errno
 import os
 import yaml
 import sys

@@ -32,12 +32,13 @@
 #
 ################################################################################
 
-import sys
-import os
 import argparse
-import yaml
-import re
 import difflib
+import errno
+import os
+import re
+import sys
+import yaml
 
 
 class Classifier():
@@ -242,7 +243,7 @@ if __name__ == "__main__":
         __file__))) if args.msgdir == 'msg' else os.path.abspath(args.msgdir)
     yaml_file = os.path.abspath(args.yaml_file) if os.path.isabs(
         args.yaml_file) else os.path.join(msg_dir, args.yaml_file)
-    deprecated_msg_file = os.path.abspath(deprecated_file) if os.path.isabs(
+    deprecated_msg_file = os.path.abspath(args.deprecated_file) if os.path.isabs(
         args.deprecated_file) else os.path.join(msg_dir, args.deprecated_file)
 
     classifier = Classifier(yaml_file, msg_dir, deprecated_msg_file)
