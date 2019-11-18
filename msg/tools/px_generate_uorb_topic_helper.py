@@ -178,8 +178,9 @@ def add_padding_bytes(fields, search_path):
                 # embedded type: may need to add padding
                 num_padding_bytes = align_to - (struct_size % align_to)
                 if num_padding_bytes != align_to:
-                    padding_field = genmsg.Field('_padding' + str(padding_idx),
-                                                 'uint8[' + str(num_padding_bytes) + ']')
+                    padding_field = genmsg.Field(
+                        '_padding' + str(padding_idx),
+                        'uint8[' + str(num_padding_bytes) + ']')
                     padding_idx += 1
                     padding_field.sizeof_field_type = 1
                     struct_size += num_padding_bytes
@@ -187,8 +188,8 @@ def add_padding_bytes(fields, search_path):
                     i += 1
                 children_fields = get_children_fields(
                     field.base_type, search_path)
-                field.sizeof_field_type, unused = add_padding_bytes(children_fields,
-                                                                    search_path)
+                field.sizeof_field_type, unused = add_padding_bytes(
+                    children_fields, search_path)
             struct_size += field.sizeof_field_type * array_size
         i += 1
 
@@ -296,15 +297,27 @@ def print_field(field):
             return
 
     if field.name == 'timestamp':
-        print("if (message.timestamp != 0) {\n\t\tPX4_INFO_RAW(\"\\t" + field.name +
-              ": " + c_type + "  (%.6f seconds ago)\\n\", " + field_name +
-              ", hrt_elapsed_time(&message.timestamp) / 1e6);\n\t} else {\n\t\tPX4_INFO_RAW(\"\\n\");\n\t}")
+        print(
+            "if (message.timestamp != 0) {\n\t\tPX4_INFO_RAW(\"\\t" +
+            field.name +
+            ": " +
+            c_type +
+            "  (%.6f seconds ago)\\n\", " +
+            field_name +
+            ", hrt_elapsed_time(&message.timestamp) / 1e6);\n\t} else {\n\t\tPX4_INFO_RAW(\"\\n\");\n\t}")
     elif field.name == 'device_id':
         print("char device_id_buffer[80];")
         print("device::Device::device_id_print_buffer(device_id_buffer, sizeof(device_id_buffer), message.device_id);")
         print("PX4_INFO_RAW(\"\\tdevice_id: %d (%s) \\n\", message.device_id, device_id_buffer);")
     elif is_array and 'char' in field.type:
-        print("PX4_INFO_RAW(\"\\t" + field.name + ": \\\"%." + str(array_length) + "s\\\" \\n\", message." + field.name + ");")
+        print(
+            "PX4_INFO_RAW(\"\\t" +
+            field.name +
+            ": \\\"%." +
+            str(array_length) +
+            "s\\\" \\n\", message." +
+            field.name +
+            ");")
     else:
         print("PX4_INFO_RAW(\"\\t" + field.name + ": " +
               c_type + "\\n\", " + field_name + ");")
@@ -347,8 +360,14 @@ def print_field_def(field):
     if field.name.startswith('_padding'):
         comment = ' // required for logger'
 
-    print('\t%s%s%s %s%s;%s' % (type_prefix, type_px4, type_appendix, field.name,
-                                array_size, comment))
+    print(
+        '\t%s%s%s %s%s;%s' %
+        (type_prefix,
+         type_px4,
+         type_appendix,
+         field.name,
+         array_size,
+         comment))
 
 
 def check_available_ids(used_msg_ids_list):
@@ -380,5 +399,9 @@ def rtps_message_id(msg_id_map, message):
             used_ids.append(dict['id'])
 
     raise AssertionError(
-        "%s %s Please add an ID from the available pool:\n" % (message, error_msg) +
-        ", ".join('%d' % id for id in check_available_ids(used_ids)))
+        "%s %s Please add an ID from the available pool:\n" %
+        (message,
+         error_msg) +
+        ", ".join(
+            '%d' %
+            id for id in check_available_ids(used_ids)))

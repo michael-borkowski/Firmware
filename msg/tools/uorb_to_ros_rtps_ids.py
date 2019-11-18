@@ -140,16 +140,26 @@ if __name__ == "__main__":
     required = parser.add_argument_group('Required')
     required.add_argument("-i", "--input-file", dest="input_file",
                           help="Yaml file to read", metavar="INFILE")
-    optional.add_argument("-o", "--output-file", dest="output_file",
-                          help="Yaml file to dump. If not set, it is the same as the input",
-                          metavar="OUTFILE", default="")
-    optional.add_argument("-q", "--quiet", action="store_false", dest="verbose",
-                          default=True, help="Don't print status messages to stdout")
+    optional.add_argument(
+        "-o",
+        "--output-file",
+        dest="output_file",
+        help="Yaml file to dump. If not set, it is the same as the input",
+        metavar="OUTFILE",
+        default="")
+    optional.add_argument(
+        "-q",
+        "--quiet",
+        action="store_false",
+        dest="verbose",
+        default=True,
+        help="Don't print status messages to stdout")
 
     args = parser.parse_args()
     verbose = args.verbose
     in_file = args.input_file
-    out_file = args.output_file if (args.output_file != in_file and args.output_file != "") else in_file
+    out_file = args.output_file if (
+        args.output_file != in_file and args.output_file != "") else in_file
 
     if verbose:
         print("-- PX4 to ROS RTPS Ids --")

@@ -76,21 +76,34 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Parse uORB message format to ROS msg format')
     optional = parser._action_groups.pop()
-    optional.add_argument("-d", "--deprecated-msgs-file", dest='deprecated_file', type=str,
-                          help="Directory and file with the deprecated uORB msgs are set, by default use relative path to msg, 'tools/deprecated_uorb_topics.yaml'", metavar="DEPRECATED_FILE_DIR",
-                          default='tools/deprecated_uorb_topics.yaml')
+    optional.add_argument(
+        "-d",
+        "--deprecated-msgs-file",
+        dest='deprecated_file',
+        type=str,
+        help="Directory and file with the deprecated uORB msgs are set, by default use relative path to msg, 'tools/deprecated_uorb_topics.yaml'",
+        metavar="DEPRECATED_FILE_DIR",
+        default='tools/deprecated_uorb_topics.yaml')
     required = parser.add_argument_group('Required')
     required.add_argument("-i", "--topic-msg-dir", dest='indir', type=str,
                           help="uORB messages dir", metavar="UORB_MSG_DIR")
-    required.add_argument("-o", "--ros-msg-dir", dest='outdir', type=str,
-                          help="Output ROS messages dir", metavar="ROS_MSG_DIR")
+    required.add_argument(
+        "-o",
+        "--ros-msg-dir",
+        dest='outdir',
+        type=str,
+        help="Output ROS messages dir",
+        metavar="ROS_MSG_DIR")
 
     # Parse arguments
     args = parser.parse_args()
     input_dir = os.path.abspath(args.indir)
     output_dir = os.path.abspath(args.outdir)
-    deprecated_msg_file = os.path.abspath(args.deprecated_file) if os.path.isabs(
-        args.deprecated_file) else os.path.join(input_dir, args.deprecated_file)
+    deprecated_msg_file = os.path.abspath(
+        args.deprecated_file) if os.path.isabs(
+        args.deprecated_file) else os.path.join(
+            input_dir,
+        args.deprecated_file)
 
     # creates the list of deprecated uORB msgs
     deprecated_list = []
@@ -108,7 +121,8 @@ if __name__ == "__main__":
 
     msg_list = list()
 
-    # copies the uORB msgs to the ROS msg dir, applying the CamelCase style to the naming
+    # copies the uORB msgs to the ROS msg dir, applying the CamelCase style to
+    # the naming
     for filename in os.listdir(input_dir):
         # only lists the messages that are not deprecated
         if '.msg' in filename:
@@ -117,9 +131,8 @@ if __name__ == "__main__":
                     msg_list.append(filename.rstrip('.msg'))
                     input_file = os.path.join(input_dir, filename)
 
-                    output_file = os.path.join(output_dir,
-                                               filename.partition(".")[0].title().replace(
-                                                   '_', '') + ".msg")
+                    output_file = os.path.join(output_dir, filename.partition(".")[
+                                               0].title().replace('_', '') + ".msg")
                     copyfile(input_file, output_file)
 
     # removes unnecessary content from the msgs and creates new messages from #TOPICS on
@@ -140,12 +153,19 @@ if __name__ == "__main__":
                     for msg_type in msg_list:
                         if ('px4/' + msg_type + ' ') in line:
                             fileUpdated = True
-                            line = line.replace(('px4/' + msg_type),
-                                                msg_type.partition(".")[0].title().replace('_', ''))
-                        if ('' + msg_type + '[') in line.partition('#')[0] or ('' + msg_type + ' ') in line.partition('#')[0]:
+                            line = line.replace(
+                                ('px4/' + msg_type),
+                                msg_type.partition(".")[0].title().replace(
+                                    '_',
+                                    ''))
+                        if ('' +
+                            msg_type +
+                            '[') in line.partition('#')[0] or ('' +
+                                                               msg_type +
+                                                               ' ') in line.partition('#')[0]:
                             fileUpdated = True
-                            line = line.replace(msg_type,
-                                                msg_type.partition(".")[0].title().replace('_', ''))
+                            line = line.replace(msg_type, msg_type.partition(".")[
+                                                0].title().replace('_', ''))
                         if '# TOPICS' in line:
                             fileUpdated = True
                             alias_msgs += line.split()
