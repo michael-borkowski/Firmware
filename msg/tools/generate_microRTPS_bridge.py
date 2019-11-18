@@ -159,38 +159,41 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-a", "--agent", dest='agent', action="store_true",
                     help="Flag for generate the agent, by default is true if -c is not specified")
-parser.add_argument("-c", "--client", dest='client', action="store_true",
-                    help="Flag for generate the client, by default is true if -a is not specified")
-parser.add_argument("-i", "--generate-idl", dest='gen_idl',
-                    action="store_true", help="Flag for generate idl files for each msg")
-parser.add_argument("-j", "--idl-dir", dest='idl_dir',
-                    type=str, help="IDL files dir", default='')
-parser.add_argument("-m", "--mkdir-build", dest='mkdir_build',
-                    action="store_true", help="Flag to create 'build' dir")
-parser.add_argument("-l", "--generate-cmakelists", dest='cmakelists',
-                    action="store_true", help="Flag to generate a CMakeLists.txt file for the micro-RTPS agent")
-parser.add_argument("-t", "--topic-msg-dir", dest='msgdir', type=str,
-                    help="Topics message, by default using relative path 'msg/'", default="msg")
 parser.add_argument("-b", "--uorb-templates-dir", dest='uorb_templates', type=str,
                     help="uORB templates, by default using relative path to msgdir 'templates/uorb_microcdr'", default=default_uorb_templates_dir)
-parser.add_argument("-q", "--urtps-templates-dir", dest='urtps_templates', type=str,
-                    help="uRTPS templates, by default using relative path to msgdir 'templates/urtps'", default=default_urtps_templates_dir)
-parser.add_argument("-y", "--rtps-ids-file", dest='yaml_file', type=str,
-                    help="RTPS msg IDs definition path, by default using relative path to msgdir 'tools/uorb_rtps_message_ids.yaml'", default=default_rtps_id_file)
-parser.add_argument("-p", "--package", dest='package', type=str,
-                    help="Msg package naming, by default px4", default=default_package_name)
-parser.add_argument("-o", "--agent-outdir", dest='agentdir', type=str,
-                    help="Agent output dir, by default using relative path 'src/modules/micrortps_bridge/micrortps_agent'", default=default_agent_out)
-parser.add_argument("-u", "--client-outdir", dest='clientdir', type=str,
-                    help="Client output dir, by default using relative path 'src/modules/micrortps_bridge/micrortps_client'", default=default_client_out)
+parser.add_argument("-c", "--client", dest='client', action="store_true",
+                    help="Flag for generate the client, by default is true if -a is not specified")
+parser.add_argument("-d", "--deprecated-msgs-file", dest='deprecated_file', type=str,
+                    help="Directory and file with the deprecated uORB msgs are set, by default use relative path to msg, 'tools/deprecated_uorb_topics.yaml'",
+                    default='tools/deprecated_uorb_topics.yaml')
+parser.add_argument("--delete-tree", dest='del_tree',
+                    action="store_true", help="Delete dir tree output dir(s)")
 parser.add_argument("-f", "--fastrtpsgen-dir", dest='fastrtpsgen', type=str, nargs='?',
                     help="fastrtpsgen installation dir, only needed if fastrtpsgen is not in PATH, by default empty", default="")
 parser.add_argument("-g", "--fastrtpsgen-include", dest='fastrtpsgen_include', type=str,
                     help="directory(ies) to add to preprocessor include paths of fastrtpsgen, by default empty", default="")
+parser.add_argument("-i", "--generate-idl", dest='gen_idl',
+                    action="store_true", help="Flag for generate idl files for each msg")
+parser.add_argument("-j", "--idl-dir", dest='idl_dir',
+                    type=str, help="IDL files dir", default='')
+parser.add_argument("-l", "--generate-cmakelists", dest='cmakelists',
+                    action="store_true", help="Flag to generate a CMakeLists.txt file for the micro-RTPS agent")
+parser.add_argument("-m", "--mkdir-build", dest='mkdir_build',
+                    action="store_true", help="Flag to create 'build' dir")
+parser.add_argument("-o", "--agent-outdir", dest='agentdir', type=str,
+                    help="Agent output dir, by default using relative path 'src/modules/micrortps_bridge/micrortps_agent'", default=default_agent_out)
+parser.add_argument("-p", "--package", dest='package', type=str,
+                    help="Msg package naming, by default px4", default=default_package_name)
+parser.add_argument("-q", "--urtps-templates-dir", dest='urtps_templates', type=str,
+                    help="uRTPS templates, by default using relative path to msgdir 'templates/urtps'", default=default_urtps_templates_dir)
 parser.add_argument("-r", "--ros2-distro", dest='ros2_distro', type=str, nargs='?',
                     help="ROS2 distro, only required if generating the agent for usage with ROS2 nodes, by default empty", default="")
-parser.add_argument("--delete-tree", dest='del_tree',
-                    action="store_true", help="Delete dir tree output dir(s)")
+parser.add_argument("-t", "--topic-msg-dir", dest='msgdir', type=str,
+                    help="Topics message, by default using relative path 'msg/'", default="msg")
+parser.add_argument("-u", "--client-outdir", dest='clientdir', type=str,
+                    help="Client output dir, by default using relative path 'src/modules/micrortps_bridge/micrortps_client'", default=default_client_out)
+parser.add_argument("-y", "--rtps-ids-file", dest='yaml_file', type=str,
+                    help="RTPS msg IDs definition path, by default using relative path to msgdir 'tools/uorb_rtps_message_ids.yaml'", default=default_rtps_id_file)
 
 
 if len(sys.argv) <= 1:
@@ -312,8 +315,13 @@ urtps_templates_dir = (args.urtps_templates if os.path.isabs(args.urtps_template
                        else os.path.join(msg_dir, args.urtps_templates))
 
 # parse yaml file into a map of ids
-classifier = (Classifier(os.path.abspath(args.yaml_file), msg_dir) if os.path.isabs(args.yaml_file)
-              else Classifier(os.path.join(msg_dir, args.yaml_file), msg_dir))
+yaml_file = os.path.abspath(args.yaml_file) if os.path.isabs(
+    args.yaml_file) else os.path.join(msg_dir, args.yaml_file)
+# parse yaml file into a list of deprecated msgs
+deprecated_msg_file = os.path.abspath(deprecated_file) if os.path.isabs(
+    args.deprecated_file) else os.path.join(msg_dir, args.deprecated_file)
+
+classifier = Classifier(yaml_file, msg_dir, deprecated_msg_file)
 
 # check if there are no ID's repeated
 check_rtps_id_uniqueness(classifier)
@@ -418,7 +426,7 @@ def generate_agent(out_dir):
     for idl_file in glob.glob(os.path.join(idl_dir, "*.idl")):
         try:
             ret = subprocess.check_call(fastrtpsgen_path + " -d " + out_dir +
-                                  "/fastrtpsgen -example x64Linux2.6gcc " + fastrtpsgen_include + idl_file, shell=True)
+                                        "/fastrtpsgen -example x64Linux2.6gcc " + fastrtpsgen_include + idl_file, shell=True)
         except OSError:
             raise
 

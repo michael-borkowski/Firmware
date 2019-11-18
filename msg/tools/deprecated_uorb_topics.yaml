@@ -1,0 +1,4 @@
+- name: ekf2_innovations
+  date: 2019-11-18
+  reason: Updated estimator interface and logging.
+  observations: Replaced by 'estimator_innovations'.

@@ -45,8 +45,10 @@ class Classifier():
     Class to classify RTPS msgs as senders, receivers or to be ignored
     """
 
-    def __init__(self, yaml_file, msg_folder):
+    def __init__(self, yaml_file, msg_folder, deprecated_msg_file):
         self.msg_folder = msg_folder
+        self.deprecated_msgs = self.parse_yaml_msg_id_file(
+            deprecated_msg_file)
         self.all_msgs_list = self.set_all_msgs()
         self.msg_id_map = self.parse_yaml_msg_id_file(yaml_file)
         self.alias_space_init_id = 150
@@ -66,9 +68,18 @@ class Classifier():
     # setters (for class init)
     def set_all_msgs(self):
         msg_list = []
+        deprecated_list = []
+
+        # updates the list of deprecated uORB msgs
+        for msg in self.deprecated_msgs:
+            deprecated_list.append(msg['name'])
+
         for filename in os.listdir(self.msg_folder):
+            # only lists the messages that are not deprecated
             if '.msg' in filename:
-                msg_list.append(re.sub(".msg", "", filename))
+                for deprecated in deprecated_list:
+                    if (deprecated not in filename):
+                        msg_list.append(re.sub(".msg", "", filename))
         return msg_list
 
     def set_msgs_to_send(self):
@@ -205,32 +216,36 @@ class Classifier():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-s", "--send", dest='send',
-                        action="store_true", help="Get topics to be sent")
     parser.add_argument("-a", "--alias", dest='alias',
                         action="store_true", help="Get alias topics")
-    parser.add_argument("-r", "--receive", dest='receive',
-                        action="store_true", help="Get topics to be received")
+    parser.add_argument("-d", "--deprecated-msgs-file", dest='deprecated_file', type=str,
+                        help="Directory and file with the deprecated uORB msgs are set, by default use relative path to msg, 'tools/deprecated_uorb_topics.yaml'",
+                        default='tools/deprecated_uorb_topics.yaml')
     parser.add_argument("-i", "--ignore", dest='ignore',
                         action="store_true", help="Get topics to be ignored")
-    parser.add_argument("-p", "--path", dest='path',
-                        action="store_true", help="Get msgs and its paths")
     parser.add_argument("-m", "--topic-msg-dir", dest='msgdir', type=str,
                         help="Topics message dir, by default msg/", default="msg")
+    parser.add_argument("-p", "--path", dest='path',
+                        action="store_true", help="Get msgs and its paths")
+    parser.add_argument("-r", "--receive", dest='receive',
+                        action="store_true", help="Get topics to be received")
+    parser.add_argument("-s", "--send", dest='send',
+                        action="store_true", help="Get topics to be sent")
     parser.add_argument("-y", "--rtps-ids-file", dest='yaml_file', type=str,
-                        help="RTPS msg IDs definition file absolute path, by default use relative path to msg, tools/uorb_rtps_message_ids.yaml",
+                        help="RTPS msg IDs definition file absolute path, by default use relative path to msg, 'tools/uorb_rtps_message_ids.yaml'",
                         default='tools/uorb_rtps_message_ids.yaml')
 
     # Parse arguments
     args = parser.parse_args()
 
-    msg_dir = args.msgdir
-    if args.msgdir == 'msg':
-        msg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    else:
-        msg_dir = os.path.abspath(args.msgdir)
-    classifier = (Classifier(os.path.abspath(args.yaml_file), msg_dir) if os.path.isabs(args.yaml_file)
-                  else Classifier(os.path.join(msg_dir, args.yaml_file), msg_dir))
+    msg_dir = os.path.dirname(os.path.dirname(os.path.abspath(
+        __file__))) if args.msgdir == 'msg' else os.path.abspath(args.msgdir)
+    yaml_file = os.path.abspath(args.yaml_file) if os.path.isabs(
+        args.yaml_file) else os.path.join(msg_dir, args.yaml_file)
+    deprecated_msg_file = os.path.abspath(deprecated_file) if os.path.isabs(
+        args.deprecated_file) else os.path.join(msg_dir, args.deprecated_file)
+
+    classifier = Classifier(yaml_file, msg_dir, deprecated_msg_file)
 
     if args.send:
         if args.path:

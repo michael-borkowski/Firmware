@@ -45,8 +45,8 @@ rtps:
   - msg: distance_sensor
     id: 17
     send: true
-  - msg: ekf2_innovations
-    id: 18
+# - msg: ekf2_innovations
+#   id: 18
   - msg: ekf2_timestamps
     id: 19
   - msg: ekf_gps_drift
