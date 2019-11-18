@@ -397,6 +397,8 @@ PARAM_DEFINE_FLOAT(MPC_MAN_Y_MAX, 150.0f);
 
 /**
  * Manual yaw rate input filter time constant
+ * A value of 0 doesn't filter the input.
+ * The higher the value, the slower the yaw ac/deceleration.
  *
  * @unit s
  * @min 0.0
