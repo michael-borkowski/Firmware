@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 '''
 Helper methods & common code for the uorb message templates msg.{cpp,h}.em
@@ -54,7 +54,9 @@ __credits__ = [
     'Lorenz Meier <lorenz@px4.io>',
     'Nuno Marques <nuno.marques@dronesolution.io>']
 __license__ = 'BSD-3-Clause'
-__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
+__version__ = subprocess.check_output(
+    'git describe --abbrev=0',
+    shell=True).strip().decode()
 __maintainer__ = 'Beat Küng'
 __email__ = 'beat-kueng@gmx.net'
 __status__ = 'Development'
@@ -269,10 +271,10 @@ def print_field(field):
 
         else:
             for i in range(array_length):
-                print("PX4_INFO_RAW(\"\\t" + field.type +
-                      " " + field.name + "[" + str(i) + "]\");")
-                print(" print_message(message." +
-                      field.name + "[" + str(i) + "]);")
+                print(("PX4_INFO_RAW(\"\\t" + field.type +
+                       " " + field.name + "[" + str(i) + "]\");"))
+                print((" print_message(message." +
+                       field.name + "[" + str(i) + "]);"))
             return
 
         for i in range(array_length):
@@ -306,35 +308,35 @@ def print_field(field):
                 field_name = "(" + field_name + " ? \"True\" : \"False\")"
 
         else:
-            print("PX4_INFO_RAW(\"\\n\\t" + field.name + "\");")
-            print("\tprint_message(message." + field.name + ");")
+            print(("PX4_INFO_RAW(\"\\n\\t" + field.name + "\");"))
+            print(("\tprint_message(message." + field.name + ");"))
             return
 
     if field.name == 'timestamp':
-        print(
+        print((
             "if (message.timestamp != 0) {\n\t\tPX4_INFO_RAW(\"\\t" +
             field.name +
             ": " +
             c_type +
             "  (%.6f seconds ago)\\n\", " +
             field_name +
-            ", hrt_elapsed_time(&message.timestamp) / 1e6);\n\t} else {\n\t\tPX4_INFO_RAW(\"\\n\");\n\t}")
+            ", hrt_elapsed_time(&message.timestamp) / 1e6);\n\t} else {\n\t\tPX4_INFO_RAW(\"\\n\");\n\t}"))
     elif field.name == 'device_id':
         print("char device_id_buffer[80];")
         print("device::Device::device_id_print_buffer(device_id_buffer, sizeof(device_id_buffer), message.device_id);")
         print("PX4_INFO_RAW(\"\\tdevice_id: %d (%s) \\n\", message.device_id, device_id_buffer);")
     elif is_array and 'char' in field.type:
-        print(
+        print((
             "PX4_INFO_RAW(\"\\t" +
             field.name +
             ": \\\"%." +
             str(array_length) +
             "s\\\" \\n\", message." +
             field.name +
-            ");")
+            ");"))
     else:
-        print("PX4_INFO_RAW(\"\\t" + field.name + ": " +
-              c_type + "\\n\", " + field_name + ");")
+        print(("PX4_INFO_RAW(\"\\t" + field.name + ": " +
+               c_type + "\\n\", " + field_name + ");"))
 
 
 def print_field_def(field):
@@ -374,14 +376,14 @@ def print_field_def(field):
     if field.name.startswith('_padding'):
         comment = ' // required for logger'
 
-    print(
+    print((
         '\t%s%s%s %s%s;%s' %
         (type_prefix,
          type_px4,
          type_appendix,
          field.name,
          array_size,
-         comment))
+         comment)))
 
 
 def check_available_ids(used_msg_ids_list):

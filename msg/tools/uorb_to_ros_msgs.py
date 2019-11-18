@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Script to parse uORB message format to ROS msg format
 Adapted from https://github.com/eProsima/px4_to_ros/blob/master/px4_to_ros2_PoC/px4_msgs/scripts/copy_and_rename.py
@@ -49,7 +49,9 @@ __credits__ = [
     'Nuno Marques <nuno.marques@dronesolution.io>',
     'Vicente Monge']
 __license__ = 'BSD-3-Clause'
-__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
+__version__ = subprocess.check_output(
+    'git describe --abbrev=0',
+    shell=True).strip().decode()
 __maintainer__ = 'Nuno Marques'
 __email__ = 'nuno.marques@dronesolution.io'
 __status__ = 'Development'

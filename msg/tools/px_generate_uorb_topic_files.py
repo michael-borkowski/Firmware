@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 """
 px_generate_uorb_topic_files.py
 Generates c/cpp header/source files for uorb topics from .msg (ROS syntax)
 message files
 """
-
-from __future__ import print_function
 
 import argparse
 import errno
@@ -57,7 +55,9 @@ __credits__ = [
     'Lorenz Meier <lorenz@px4.io>',
     'Nuno Marques <nuno.marques@dronesolution.io>']
 __license__ = 'BSD-3-Clause'
-__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
+__version__ = subprocess.check_output(
+    'git describe --abbrev=0',
+    shell=True).strip().decode()
 __maintainer__ = 'Beat Küng'
 __email__ = 'beat-kueng@gmx.net'
 __status__ = 'Development'
@@ -278,19 +278,11 @@ def generate_uRTPS_general(
     receive_msgs = list(os.path.join(msg_dir, msg + ".msg")
                         for msg in filename_receive_msgs)
 
-    if sys.version_info[0] < 3:
-        alias_send_msgs = list([os.path.join(
-            msg_dir, msg[1] + ".msg"), msg[0].keys()[0]] for msg in filename_alias_send_msgs)
-    else:
-        alias_send_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"),
-                                list(msg[0].keys())[0]] for msg in filename_alias_send_msgs)
+    alias_send_msgs = list([os.path.join(msg_dir, msg[1] + ".msg"),
+                            list(msg[0].keys())[0]] for msg in filename_alias_send_msgs)
 
-    if sys.version_info[0] < 3:
-        alias_receive_msgs = list([os.path.join(
-            msg_dir, msg[1] + ".msg"), msg[0].keys()[0]] for msg in filename_alias_receive_msgs)
-    else:
-        alias_receive_msgs = list([os.path.join(
-            msg_dir, msg[1] + ".msg"), list(msg[0].keys())[0]] for msg in filename_alias_receive_msgs)
+    alias_receive_msgs = list([os.path.join(
+        msg_dir, msg[1] + ".msg"), list(msg[0].keys())[0]] for msg in filename_alias_receive_msgs)
 
     em_globals_list = []
     if send_msgs:
