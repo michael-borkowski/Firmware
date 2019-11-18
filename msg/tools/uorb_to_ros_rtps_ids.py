@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-Script to read an yaml file containing the RTPS message IDs and update the naming convention to PascalCase
+Script to read an yaml file containing the RTPS message IDs and update the
+naming convention to PascalCase
 """
 
 import errno
@@ -45,7 +46,7 @@ __copyright__ = \
     '''
 __credits__ = ['Nuno Marques <nuno.marques@dronesolution.io>']
 __license__ = 'BSD-3-Clause'
-__version__ = '0.1.0'
+__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
 __maintainer__ = 'Nuno Marques'
 __email__ = 'nuno.marques@dronesolution.io'
 __status__ = 'Development'

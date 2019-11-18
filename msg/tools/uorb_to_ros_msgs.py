@@ -15,7 +15,7 @@ __author__ = 'PX4 Development Team'
 __copyright__ = \
     '''
      '
-     '   Copyright (C) 2018 PX4 Development Team. All rights reserved.
+     '   Copyright (C) 2018-2019 PX4 Development Team. All rights reserved.
      '
      ' Redistribution and use in source and binary forms, or without
      ' modification, permitted provided that the following conditions
@@ -45,9 +45,11 @@ __copyright__ = \
      ' POSSIBILITY OF SUCH DAMAGE.
      '
     '''
-__credits__ = ['Nuno Marques <nuno.marques@dronesolution.io>']
+__credits__ = [
+    'Nuno Marques <nuno.marques@dronesolution.io>',
+    'Vicente Monge']
 __license__ = 'BSD-3-Clause'
-__version__ = '0.1.0'
+__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
 __maintainer__ = 'Nuno Marques'
 __email__ = 'nuno.marques@dronesolution.io'
 __status__ = 'Development'

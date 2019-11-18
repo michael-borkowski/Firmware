@@ -1,42 +1,11 @@
 #!/usr/bin/env python
-
-##########################################################################
-#
-# Copyright 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
-#           2018-2019 PX4 Development Team. All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice, this
-# list of conditions and the following disclaimer.
-#
-# 2. Redistributions in binary form must reproduce the above copyright notice,
-# this list of conditions and the following disclaimer in the documentation
-# and/or other materials provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors
-# may be used to endorse or promote products derived from this software without
-# specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-##########################################################################
-
-# This script can generate the client and agent code based on a set of topics
-# to sent and set to receive. It uses fastrtpsgen to generate the code from the
-# IDL for the topic messages. The PX4 msg definitions are used to create the IDL
-# used by fastrtpsgen using templates.
+# -*- coding: UTF-8 -*-
+'''
+This script can generate the client and agent code based on a set of topics
+to sent and set to receive. It uses fastrtpsgen to generate the code from the
+IDL for the topic messages. The PX4 msg definitions are used to create the IDL
+used by fastrtpsgen using templates.
+'''
 
 import argparse
 import errno
@@ -49,6 +18,51 @@ import subprocess
 import px_generate_uorb_topic_files
 import px_generate_uorb_topic_helper
 from uorb_rtps_classifier import Classifier
+
+__author__ = 'PX4 Development Team'
+__copyright__ = \
+    '''
+     '
+     '   Copyright (C) 2017 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+     '                 2018-2019 PX4 Development Team. All rights reserved.
+     '
+     ' Redistribution and use in source and binary forms, or without
+     ' modification, permitted provided that the following conditions
+     ' are met:
+     '
+     ' 1. Redistributions of source code must retain the above copyright
+     '    notice, list of conditions and the following disclaimer.
+     ' 2. Redistributions in binary form must reproduce the above copyright
+     '    notice, list of conditions and the following disclaimer in
+     '    the documentation and/or other materials provided with the
+     '    distribution.
+     ' 3. Neither the name PX4 nor the names of its contributors may be
+     '    used to endorse or promote products derived from self software
+     '    without specific prior written permission.
+     '
+     ' THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+     ' "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, NOT
+     ' LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+     ' FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+     ' COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+     ' INCIDENTAL, SPECIAL, EXEMPLARY, CONSEQUENTIAL DAMAGES (INCLUDING,
+     ' BUT NOT LIMITED TO, OF SUBSTITUTE GOODS OR SERVICES; LOSS
+     ' OF USE, DATA, PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+     ' AND ON ANY THEORY OF LIABILITY, IN CONTRACT, STRICT
+     ' LIABILITY, TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+     ' ANY WAY OUT OF THE USE OF THIS SOFTWARE, IF ADVISED OF THE
+     ' POSSIBILITY OF SUCH DAMAGE.
+     '
+    '''
+__credits__ = [
+    'Vicente Monge',
+    'Nuno Marques <nuno.marques@dronesolution.io>',
+    'Beat Küng <beat-kueng@gmx.net>']
+__license__ = 'BSD-3-Clause'
+__version__ = subprocess.check_output('git describe --abbrev=0', shell=True).strip().decode()
+__maintainer__ = 'Nuno Marques'
+__email__ = 'nuno.marques@dronesolution.io'
+__status__ = 'Development'
 
 
 try:
