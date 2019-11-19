@@ -2139,9 +2139,10 @@ Commander::run()
 			if (sp_man.kill_switch == manual_control_setpoint_s::SWITCH_POS_ON) {
 				/* set lockdown flag */
 				if (!armed.manual_lockdown) {
-					mavlink_log_emergency(&mavlink_log_pub, "Manual kill-switch engaged");
+					warnx("Flight termination initiated by kill switch");
+					mavlink_log_emergency(&mavlink_log_pub, "Manual kill-switch engaged - terminating");
 					status_changed = true;
-					armed.manual_lockdown = true;
+					armed.force_failsafe = true;
 				}
 
 			} else if (sp_man.kill_switch == manual_control_setpoint_s::SWITCH_POS_OFF) {
